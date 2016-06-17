@@ -7,6 +7,7 @@ import org.apache.spark.SparkContext._
 import org.apache.spark.SparkConf
 import org.apache.spark.rdd.RDD
 
+
 object SimpleApp {
 
   // 获取某个单词的数量
@@ -16,15 +17,18 @@ object SimpleApp {
   }
 
   // 获取文本行数
-  def get_lines_count(rDD: RDD[String]): Unit = {
-    val counts = rDD.count()
-    println("Lines count is %s".format(counts))
+  def get_lines_count(rDD: RDD[String]): Long = {
+    rDD.count()
   }
 
   // 获取所有单词数
-  def get_words_count(rDD: RDD[String]): Unit = {
-    val counts = rDD.flatMap(line => line.split(" ")).count()
-    println("All words counts is %s".format(counts))
+  def get_words_count(rDD: RDD[String]): Long = {
+    rDD.flatMap(line => line.split(" ")).count()
+  }
+
+  // 获取单词键值对并计数
+  def get_words_map(rDD: RDD[String]): collection.Map[String, Long] = {
+    rDD.flatMap(line => line.split(" ")).countByValue()
   }
 
   def main(args: Array[String]) {
@@ -32,6 +36,7 @@ object SimpleApp {
     val conf = new SparkConf().setAppName("Simple Application")
     val sc = new SparkContext(conf)
     val logData = sc.textFile(logFile, 2).cache()
-    get_word_count(logData, "spark")
+    val words_map = get_words_map(logData)
+    println("words map is %s", words_map)
   }
 }
